@@ -2,6 +2,24 @@
 set -eu
 
 main() {
+  local target=''
+  local os_hardware=''
+  os_hardware="$(uname -s)-$(uname -m)"
+  case "$os_hardware" in
+    Darwin-x86_64)
+      target='dist/darwin-amd64'
+      ;;
+    *)
+      echo "$0 not implemented for $os_hardware" >&2
+      exit 1
+      ;;
+  esac
+  # Sanity check.
+  if [[ -z "$target" ]]; then
+    echo "$0: target cannot be empty" >&2
+    exit 1
+  fi
+
   if [[ "$(uname -s)-$(uname -m)" != "Darwin-x86_64" ]]; then
     echo "$0 must be executed on macOS amd64 machines" >&2
     exit 1
@@ -49,7 +67,6 @@ main() {
   make install
   popd # third_party/libfido2
 
-  local target='dist/darwin-amd64'
   rm -fr "$target"
   mkdir -p "$target/lib"
   cp -r "$tmp/include" "$target/"
